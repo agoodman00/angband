@@ -14736,7 +14736,11 @@ static bool borg_play_step(int y2, int x2)
         if (randint0(500) <= 5 && !vault_on_level)
             return false;
 
-        /* Switch to a digger if we have one */
+        /*
+	 * Switch to a digger if we have one; in 4.2 or later the game does
+	 * this automatically
+	 */
+#if 0
         if (weapon_swap && borg_items[weapon_swap-1].tval == TV_DIGGING) {
             borg_note("# Swapping Digger");
             borg_keypress(ESCAPE);
@@ -14745,6 +14749,7 @@ static bool borg_play_step(int y2, int x2)
             borg_keypress(' ');
             borg_keypress(' ');
         }
+#endif
 
         /* Dig */
         borg_note("# Digging through wall/etc");
