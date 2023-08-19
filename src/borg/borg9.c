@@ -47,6 +47,7 @@
 extern bool     auto_play;
 extern bool     keep_playing;
 #endif /* bablos */
+#include <game-event.c>
 bool            borg_cheat_death;
 
 static int key_mode; /* KEYMAP_MODE_ROGUE or KEYMAP_MODE_ORIG */
@@ -2264,7 +2265,12 @@ void resurrect_borg(void)
 
     /* Get a random name */
     create_random_name(player->race->ridx, player->full_name);
+
+    /* HACK make sure events don't fire while regenerating characters. */
+    struct event_handler_entry* svhandler = event_handlers[EVENT_LEAVE_BIRTH];
+    event_handlers[EVENT_LEAVE_BIRTH] = NULL;
     do_cmd_accept_character(NULL);
+    event_handlers[EVENT_LEAVE_BIRTH] = svhandler;
 
     /* generate town */
     player->upkeep->generate_level = true;
