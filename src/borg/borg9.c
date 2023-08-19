@@ -2640,9 +2640,7 @@ static void borg_roll_hp(void)
 /* Allow the borg to play continously.  Reset all values, */
 void resurrect_borg(void)
 {
-    char buf[80];
     int i;
-    struct player* p = player;
 
     /* save the existing dungeon.  It is cleared later but needs to */
     /* be blank when  creating the new player */
@@ -2698,8 +2696,6 @@ void resurrect_borg(void)
     /* Assume not ignoring monsters */
     goal_ignoring = false;
 
-    flavor_init();
-
     /** Roll up a new character **/
     struct player_race* p_race = NULL;
     struct player_class* p_class = NULL;
@@ -2723,39 +2719,9 @@ void resurrect_borg(void)
     /* Hack -- seed for flavors */
     seed_flavor = randint0(0x10000000);
 
-    /* Embody */
-    memcpy(&p->body, &bodies[p->race->body], sizeof(p->body));
-    my_strcpy(buf, bodies[p->race->body].name, sizeof(buf));
-    p->body.name = string_make(buf);
-    p->body.slots = mem_zalloc(p->body.count * sizeof(struct equip_slot));
-    for (i = 0; i < p->body.count; i++) {
-        p->body.slots[i].type = bodies[p->race->body].slots[i].type;
-        my_strcpy(buf, bodies[p->race->body].slots[i].name, sizeof(buf));
-        p->body.slots[i].name = string_make(buf);
-    }
-
     /* Get a random name */
     create_random_name(player->race->ridx, player->full_name);
-
-    /* Give the player some money */
-    player->au = player->au_birth = z_info->start_gold;
-
-    /* Hack - need some HP */
-    borg_roll_hp();
-
-    /* Hack - player knows all combat runes.  Maybe make them not runes? NRM */
-    player->obj_k->to_a = 1;
-    player->obj_k->to_h = 1;
-    player->obj_k->to_d = 1;
-
-    /* Player learns innate runes */
-    player_learn_innate(player);
-
-    /* Initialise the spells */
-    player_spells_init(player);
-
-    /* outfit the player */
-    player_outfit_borg(player);
+    do_cmd_accept_character(NULL);
 
     /* generate town */
     player->upkeep->generate_level = true;
@@ -2766,22 +2732,6 @@ void resurrect_borg(void)
     strcpy(fake_cmd.arg[0].name, "choice");
     fake_cmd.arg[0].data.choice = 1;
     do_cmd_reset_stats(&fake_cmd);
-
-    /* Initialise the stores, dungeon */
-    store_reset();
-    chunk_list_max = 0;
-
-    /* Restore the standard artifacts (randarts may have been loaded) */
-    cleanup_parser(&randart_parser);
-    deactivate_randart_file();
-    run_parser(&artifact_parser);
-
-    /* Now only randomize the artifacts if required */
-    if (OPT(player, birth_randarts)) {
-        seed_randart = randint0(0x10000000);
-        do_randart(seed_randart, true);
-        deactivate_randart_file();
-    }
 
     /* Hack -- flush it */
     Term_fresh();
