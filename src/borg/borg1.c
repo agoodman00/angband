@@ -782,8 +782,8 @@ int     borg_cur_wgt;   /* Current weight */
  * Constant state variables
  */
 
-int     borg_race;      /* Player race */
-int     borg_class;     /* Player class */
+unsigned int     borg_race;      /* Player race */
+unsigned int     borg_class;     /* Player class */
 
 
 

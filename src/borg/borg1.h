@@ -1679,8 +1679,8 @@ extern int      borg_cur_wgt;    /* Current weight */
  * Constant state variables
  */
 
-extern int      borg_race;       /* Current race */
-extern int      borg_class;      /* Current class */
+extern unsigned int      borg_race;       /* Current race */
+extern unsigned int      borg_class;      /* Current class */
 
 
 

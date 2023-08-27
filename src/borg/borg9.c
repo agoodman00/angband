@@ -5827,7 +5827,12 @@ void do_cmd_borg(void)
     }
 
 
-    /* Hack -- force initialization */
+    /*
+     * Hack -- force initialization; also check if the race or class changed
+     * (i.e. previous borg died, automatic borg resurrection wasn't enabled,
+     * the player restarted without exiting using a different race or class,
+     * and then the player requested that the borg start again)
+     */
     if (!initialized)
     {
         borg_init_9();
@@ -5839,6 +5844,9 @@ void do_cmd_borg(void)
             Term_fresh();
             return;
         }
+    } else if (borg_race != player->race->ridx
+            || borg_class != player->class->cidx) {
+        borg_prepare_race_class_info();
     }
 
     switch (cmd)
