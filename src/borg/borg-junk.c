@@ -443,7 +443,7 @@ bool borg_crush_junk(void)
             continue;
 
         /* Message */
-        borg_note(format("# Junking junk (valued at %d)", value));
+        borg_note(format("# Junking junk (valued at %ld)", (long int)value));
         /* Message */
         borg_note(format("# Destroying %s.", item->desc));
 
@@ -1039,8 +1039,8 @@ bool borg_crush_slow(void)
         borg_item *item = &borg_items[b_i];
 
         /* Message */
-        borg_note(format("# Junking %ld power (slow) value %d",
-            (long int)b_p - borg.power, item->value));
+        borg_note(format("# Junking %ld power (slow) value %ld",
+            (long int)b_p - borg.power, (long int)item->value));
 
         /* Attempt to consume it */
         if (borg_consume(b_i))

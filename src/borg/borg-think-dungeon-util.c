@@ -858,7 +858,8 @@ bool borg_leave_level(bool bored)
     if (!g && (borg_t - borg_began) > borg_time_to_stay_on_level(bored)) {
         /* Note */
         borg_note(format(
-            "# Spent too long (%d) on level, leaving.", borg_t - borg_began));
+            "# Spent too long (%ld) on level, leaving.",
+            (long int)(borg_t - borg_began)));
 
         /* if we are trying not to go down, go up*/
         if (try_not_to_descend)
