@@ -23,6 +23,7 @@
 
 #include "../cmd-core.h"
 #include "../game-world.h"
+#include "../mon-make.h"
 #include "../obj-gear.h"
 #include "../obj-init.h"
 #include "../obj-knowledge.h"
@@ -34,7 +35,6 @@
 #include "../obj-util.h"
 #include "../player-birth.h"
 #include "../player-spell.h"
-#include "../player-timed.h"
 #include "../store.h"
 #include "../ui-term.h"
 
@@ -42,7 +42,6 @@
 #include "borg-flow.h"
 #include "borg-init.h"
 #include "borg-io.h"
-#include "borg-magic.h"
 #include "borg-messages-react.h"
 #include "borg-messages.h"
 #include "borg-trait.h"
@@ -486,6 +485,9 @@ void reincarnate_borg(void)
     /* Start in town */
     player->depth = 0;
 
+    /* set the old depth so we know we are on a new level */
+    borg.status.old_depth = 128;
+
     /* Seed for flavors */
     seed_flavor = randint0(0x10000000);
 
@@ -536,6 +538,14 @@ void reincarnate_borg(void)
 
     /* Initialise the stores, dungeon */
     store_reset();
+
+    /* Free the chunk list */
+    for (i = 0; i < chunk_list_max; i++) {
+        wipe_mon_list(chunk_list[i], player);
+        cave_free(chunk_list[i]);
+    }
+    mem_free(chunk_list);
+    chunk_list = NULL;
     chunk_list_max = 0;
 
     /* Restore the standard artifacts (randarts may have been loaded) */
@@ -557,12 +567,6 @@ void reincarnate_borg(void)
 
     /* Notice the new race and class */
     borg_prepare_race_class_info();
-
-#if false
-    /* need to check all stats */
-    for (int tmp_i = 0; tmp_i < STAT_MAX; tmp_i++)
-        my_need_stat_check[tmp_i] = true;
-#endif
 
     borg_notice_player();
 
@@ -587,6 +591,8 @@ void reincarnate_borg(void)
 
     /* the new player is now ready */
     character_generated = true;
+    if (borg.trait[BI_CDEPTH] != 0)
+        character_dungeon = true;
 
     /* Mark savefile as borg cheater */
     if (!(player->noscore & NOSCORE_BORG))
