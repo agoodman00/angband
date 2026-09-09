@@ -409,6 +409,7 @@ void reincarnate_borg(void)
     char           buf[80];
     int            i;
     struct player *p = player;
+    bool           in_town = (borg.trait[BI_CDEPTH] == 0);
 
     /* save the existing dungeon.  It is cleared later but needs to */
     /* be blank when  creating the new player */
@@ -591,7 +592,7 @@ void reincarnate_borg(void)
 
     /* the new player is now ready */
     character_generated = true;
-    if (borg.trait[BI_CDEPTH] != 0)
+    if (!in_town)
         character_dungeon = true;
 
     /* Mark savefile as borg cheater */
