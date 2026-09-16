@@ -1565,6 +1565,13 @@ void borg_update(void)
     panels.x = (((cave->width - borg_panel_wid()) * 2) / borg_panel_wid()) + 1;
     panels.y = (((cave->height - borg_panel_hgt()) * 2) / borg_panel_hgt()) + 1;
 
+    /* if the old panel info is larger than the cave, reset it */
+    /* this can happen if the player changes levels while there are messages */
+    /* waiting to be processed */
+    if (o_w_x > cave->width || o_w_y > cave->height) {
+        o_w_x = o_w_y = 0;
+    }
+
     /* allocate the detection arrays */
     borg_alloc_detection();
 
