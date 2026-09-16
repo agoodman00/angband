@@ -537,6 +537,12 @@ void reincarnate_borg(void)
     fake_cmd.arg[0].data.choice = 1;
     do_cmd_reset_stats(&fake_cmd);
 
+    /*
+     * Disable repeat command - primarily for avoiding dangling pointers when
+     * the game calls cmd_disable_repeat_floor()
+     */
+    cmd_disable_repeat();
+
     /* Initialise the stores, dungeon */
     store_reset();
 
