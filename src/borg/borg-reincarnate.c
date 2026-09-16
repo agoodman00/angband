@@ -552,7 +552,9 @@ void reincarnate_borg(void)
     /* Restore the standard artifacts (randarts may have been loaded) */
     cleanup_parser(&randart_parser);
     deactivate_randart_file();
-    run_parser(&artifact_parser);
+    if (run_parser(&artifact_parser)) {
+        quit("Could not parse artifact.txt in borg reincarnation.");
+    }
 
     /* Now only randomize the artifacts if required */
     if (OPT(player, birth_randarts)) {
