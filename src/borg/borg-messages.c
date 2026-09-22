@@ -246,6 +246,7 @@ bool borg_get_messages(struct keypress* key, struct loc cursor)
         return true;
     }
 
+#if 0
     /* HACK */
     /* in the odd case where a we get here before the message */
     /* about cheating death comes up.  */
@@ -253,17 +254,12 @@ bool borg_get_messages(struct keypress* key, struct loc cursor)
         if (borg_cfg[BORG_VERBOSE])
             borg_note("# Mid reincarnation, no map yet");
 
-        /* there is an odd case I can't track down where the borg */
-        /* tries to respawn but gets caught in a loop. */
-        borg.goal.respawning_loop_count--;
-        if (borg.goal.respawning_loop_count <= 0)
-            borg_oops("reincarnation failure");
-
         /* do nothing */
         key->code = KC_ENTER;
 
         return true;
     }
+#endif
 
     /* Catch normal messages */
     /* If there is text on the first line... */
@@ -361,8 +357,10 @@ static void borg_parse_aux(char *msg, int len)
             /* Abort */
             borg_oops("death");
 
-            /* Abort right now! */
-            borg.status.active = false;
+            /* Abort right now if not reincarnating */
+            if (!borg.status.respawning) {
+                borg.status.active = false;
+            }
             /* Noise XXX XXX XXX */
             Term_xtra(TERM_XTRA_NOISE, 1);
         }
@@ -1041,7 +1039,6 @@ static void borg_parse_aux(char *msg, int len)
     /* Hack to protect against clock overflows and errors */
     if (prefix(msg, "Illegal ")) {
         /* Oops */
-        borg.status.respawning = 7;
         borg_keypress(ESCAPE);
         borg_keypress(ESCAPE);
         borg.antibounce_count += 100;
@@ -1458,9 +1455,13 @@ static void clean_msgs(struct borg_read_messages *msgs)
         string_free(msgs->messages[i].message_p2);
         string_free(msgs->messages[i].message_p3);
     }
-    mem_free(msgs->messages);
+    if (msgs->messages) {
+        mem_free(msgs->messages);
+    }
     msgs->messages = NULL;
-    mem_free(msgs->index);
+    if (msgs->index) {
+        mem_free(msgs->index);
+    }
     msgs->index     = NULL;
     msgs->count     = 0;
     msgs->allocated = 0;
@@ -1741,6 +1742,8 @@ static void borg_init_hit_by_messages(void)
 /* init all messages used by the borg */
 void borg_init_messages(void)
 {
+    borg_free_messages();
+
     borg_init_spell_messages();
     borg_init_pain_messages();
     borg_init_hit_by_messages();
@@ -1774,13 +1777,23 @@ void borg_free_messages(void)
 {
     int i;
 
-    mem_free(borg_msg_use);
-    borg_msg_use = NULL;
-    mem_free(borg_msg_pos);
-    borg_msg_pos = NULL;
+    if (borg_msg_buf) {
+        mem_free(borg_msg_buf);
+        borg_msg_buf = NULL;
+    }
+    if (borg_msg_use) {
+        mem_free(borg_msg_use);
+        borg_msg_use = NULL;
+    }
+    if (borg_msg_pos) {
+        mem_free(borg_msg_pos);
+        borg_msg_pos = NULL;
+    }
     borg_msg_num = 0;
-    mem_free(borg_msg_buf);
-    borg_msg_buf = NULL;
+    if (borg_msg_buf) {
+        mem_free(borg_msg_buf);
+        borg_msg_buf = NULL;
+    }
     borg_msg_siz = 0;
 
     if (suffix_pain) {

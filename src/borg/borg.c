@@ -120,7 +120,7 @@ static bool check_for_deactivate_or_death(struct keypress* key)
     }
 
     /* Handle death */
-    if (player->is_dead) {
+    if (player->is_dead && !borg.status.respawning) {
         /* Print the map */
         if (borg.trait[BI_CLEVEL] >= borg_cfg[BORG_DUMP_LEVEL]
             || strstr(player->died_from, "starvation"))
@@ -161,10 +161,10 @@ static bool check_for_deactivate_or_death(struct keypress* key)
             borg_log_death();
             borg_log_death_data();
 
-            /* respawn */
-            reincarnate_borg();
-
             borg_flush();
+
+            /* respawn */
+            borg_force_reincarnate();
 
             return false;
         }
@@ -298,13 +298,6 @@ static struct keypress generate_keypress(int flush_first)
 
             /* Flush keys */
             borg_flush();
-
-            /* Cycle a few times to catch up if needed */
-            /* this is done when the borg is respawning but */
-            /* the game hasn't yet caught up with the respawn */
-            if (borg.antibounce_count > 250) {
-                borg.goal.respawning_loop_count = 3;
-            }
         }
     }
 
@@ -343,6 +336,12 @@ static struct keypress generate_keypress(int flush_first)
         return key;
     }
 
+    /* Allow respawning borgs to update their variables */
+    if (borg.status.respawning && !player->is_dead) {
+        borg_reincarnate_end();
+        borg.status.respawning = false;
+    }
+
     /* no longer need to confirm the target */
     borg.targeting = false;
 
@@ -353,7 +352,6 @@ static struct keypress generate_keypress(int flush_first)
     /* Use the local random info */
     Rand_quick = true;
     Rand_value = borg_rand_local;
-
 
     /* Think */
     while (!borg_think()) /* loop */

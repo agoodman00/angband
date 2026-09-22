@@ -1497,7 +1497,8 @@ static void borg_cmd_respawn(void)
     get_com("Are you sure you want to Respawn this borg? (y or n)? ", &cmd);
 
     if (cmd == 'y' || cmd == 'Y') {
-        reincarnate_borg();
+        borg_force_reincarnate();
+        borg_cmd_start();
     }
 }
 

@@ -21,30 +21,11 @@
 
 #ifdef ALLOW_BORG
 
-#include "../cmd-core.h"
-#include "../game-world.h"
-#include "../obj-gear.h"
-#include "../obj-init.h"
-#include "../obj-knowledge.h"
-#include "../obj-make.h"
-#include "../obj-pile.h"
-#include "../obj-power.h"
-#include "../obj-randart.h"
-#include "../obj-tval.h"
-#include "../obj-util.h"
-#include "../player-birth.h"
-#include "../player-spell.h"
-#include "../player-timed.h"
-#include "../store.h"
-#include "../ui-term.h"
+#include "../ui-menu.h"
 
-#include "borg-flow-kill.h"
-#include "borg-flow.h"
 #include "borg-init.h"
 #include "borg-io.h"
-#include "borg-magic.h"
 #include "borg-messages-react.h"
-#include "borg-messages.h"
 #include "borg-trait.h"
 #include "borg.h"
 
@@ -271,328 +252,109 @@ static void create_random_name(int race, char *name, size_t name_len)
 }
 
 /*
- * Init players with some belongings
- *
- * Having an item makes the player aware of its purpose.
+ * Kill the borg and force a reincarnation.
  */
-static void borg_outfit_player(struct player *p)
+void borg_force_reincarnate(void)
 {
-    int                      i;
-    const struct start_item *si;
-    struct object           *obj, *known_obj;
+    /* Kill the borg */
+    borg_keypress('Q');
+    borg_keypress('y');
+    borg_keypress('@');
 
-    /* Currently carrying nothing */
-    p->upkeep->total_weight = 0;
-
-    /* Give the player obvious object knowledge */
-    p->obj_k->dd = 1;
-    p->obj_k->ds = 1;
-    p->obj_k->ac = 1;
-    for (i = 1; i < OF_MAX; i++) {
-        struct obj_property *prop = lookup_obj_property(OBJ_PROPERTY_FLAG, i);
-        if (prop->subtype == OFT_LIGHT)
-            of_on(p->obj_k->flags, i);
-        if (prop->subtype == OFT_DIG)
-            of_on(p->obj_k->flags, i);
-        if (prop->subtype == OFT_THROW)
-            of_on(p->obj_k->flags, i);
-    }
-
-    /* Give the player starting equipment */
-    for (si = p->class->start_items; si; si = si->next) {
-        int                 num  = rand_range(si->min, si->max);
-        struct object_kind *kind = lookup_kind(si->tval, si->sval);
-        assert(kind);
-
-        /* Without start_kit, only start with 1 food and 1 light */
-        if (!OPT(p, birth_start_kit)) {
-            if (!tval_is_food_k(kind) && !tval_is_light_k(kind))
-                continue;
-
-            num = 1;
-        }
-
-        /* Exclude if configured to do so based on birth options. */
-        if (si->eopts) {
-            bool included = true;
-            int  eind     = 0;
-
-            while (si->eopts[eind] && included) {
-                if (si->eopts[eind] > 0) {
-                    if (p->opts.opt[si->eopts[eind]]) {
-                        included = false;
-                    }
-                } else {
-                    if (!p->opts.opt[-si->eopts[eind]]) {
-                        included = false;
-                    }
-                }
-                ++eind;
-            }
-            if (!included)
-                continue;
-        }
-
-        /* Prepare a new item */
-        obj = object_new();
-        object_prep(obj, kind, 0, MINIMISE);
-        obj->number = num;
-        obj->origin = ORIGIN_BIRTH;
-
-        known_obj   = object_new();
-        obj->known  = known_obj;
-        object_set_base_known(p, obj);
-        object_flavor_aware(p, obj);
-        obj->known->pval   = obj->pval;
-        obj->known->effect = obj->effect;
-        obj->known->notice |= OBJ_NOTICE_ASSESSED;
-
-        /* Deduct the cost of the item from starting cash */
-        p->au -= object_value_real(obj, obj->number);
-
-        /* Carry the item */
-        inven_carry(p, obj, true, false);
-        kind->everseen = true;
-    }
-
-    /* Sanity check */
-    if (p->au < 0)
-        p->au = 0;
-
-    /* Now try wielding everything */
-    wield_all(p);
-
-    /* Update knowledge */
-    update_player_object_knowledge(p);
+    /* Respawn the borg */
+    borg_reincarnate_start();
 }
 
-/*
- * Init players with some hp
- */
-static void borg_roll_hp(void)
-{
-    int i, j, min_value, max_value;
-
-    /* Minimum hitpoints at highest level */
-    min_value = (PY_MAX_LEVEL * (player->hitdie - 1) * 3) / 8;
-    min_value += PY_MAX_LEVEL;
-
-    /* Maximum hitpoints at highest level */
-    max_value = (PY_MAX_LEVEL * (player->hitdie - 1) * 5) / 8;
-    max_value += PY_MAX_LEVEL;
-
-    /* Roll out the hitpoints */
-    while (true) {
-        /* Roll the hitpoint values */
-        for (i = 1; i < PY_MAX_LEVEL; i++) {
-            j                    = randint1(player->hitdie);
-            player->player_hp[i] = player->player_hp[i - 1] + j;
-        }
-
-        /* XXX Could also require acceptable "mid-level" hitpoints */
-
-        /* Require "valid" hitpoints at highest level */
-        if (player->player_hp[PY_MAX_LEVEL - 1] < min_value)
-            continue;
-        if (player->player_hp[PY_MAX_LEVEL - 1] > max_value)
-            continue;
-
-        /* Acceptable */
-        break;
-    }
-}
 
 /*
- * Allow the borg to play continuously.  Reset all values,
+ * Wrap up the reincarnation process
  */
-void reincarnate_borg(void)
+void borg_reincarnate_end(void)
 {
-    char           buf[80];
-    int            i;
-    struct player *p = player;
-
-    /* save the existing dungeon.  It is cleared later but needs to */
-    /* be blank when  creating the new player */
-    struct chunk* sv_cave = cave;
-    struct chunk* sv_player_cave = player->cave;
-    struct loc sv_grid = player->grid;
-
-    cave = NULL;
-    player->cave = NULL;
-
-    /* Cheat death */
-    borg.trait[BI_MAXDEPTH]  = 0;
-    borg.trait[BI_MAXCLEVEL] = 1;
-    borg.time.now            = 100;
-
-    /* Flush message buffer */
-    borg_parse(NULL);
-    borg_clear_reactions();
-
-    /* flush the commands */
-    borg_flush();
-
-    /*** Wipe the player ***/
-    player_init(player);
-
-    borg.trait[BI_ISCUT] = borg.trait[BI_ISSTUN] = borg.trait[BI_ISHEAVYSTUN]
-        = borg.trait[BI_ISIMAGE] = borg.trait[BI_ISSTUDY] = false;
-
-    /* reset our anti-bounce count */
-    borg.antibounce_count = 1;
-
-    /* reset our vault/unique check */
-    borg.status.vault    = false;
-    borg.mon.unique   = 0;
-    borg.mon.scary = false;
-
-    /* reset our breeder flag */
-    borg.near.breeder = false;
-
-    /* Assume not leaving the level */
-    borg.goal.leaving = false;
-
-    /* Assume not fleeing the level */
-    borg.goal.fleeing = false;
-
-    /* Assume not fleeing the level */
-    borg.goal.fleeing_to_town = false;
-
-    /* Assume not ignoring monsters */
-    borg.goal.ignoring = false;
-
-    /* and not waiting */
-    borg.goal.waiting = false;
-
-    flavor_init();
-
-    /** Roll up a new character **/
-    struct player_race  *p_race  = NULL;
-    struct player_class *p_class = NULL;
-    if (borg_cfg[BORG_RESPAWN_RACE] != -1)
-        p_race = player_id2race(borg_cfg[BORG_RESPAWN_RACE]);
-    else
-        p_race = player_id2race(randint0(MAX_RACES));
-    if (borg_cfg[BORG_RESPAWN_CLASS] != -1)
-        p_class = player_id2class(borg_cfg[BORG_RESPAWN_CLASS]);
-    else
-        p_class = player_id2class(randint0(MAX_CLASSES));
-    player_generate(player, p_race, p_class, false);
-
-    /* The dungeon is not ready nor is the player */
-    character_dungeon   = false;
-    character_generated = false;
-
-    /* Start in town */
-    player->depth = 0;
-
-    /* Seed for flavors */
-    seed_flavor = randint0(0x10000000);
-
-    /* Embody */
-    memcpy(&p->body, &bodies[p->race->body], sizeof(p->body));
-    my_strcpy(buf, bodies[p->race->body].name, sizeof(buf));
-    p->body.name  = string_make(buf);
-    p->body.slots = mem_zalloc(p->body.count * sizeof(struct equip_slot));
-    for (i = 0; i < p->body.count; i++) {
-        p->body.slots[i].type = bodies[p->race->body].slots[i].type;
-        my_strcpy(buf, bodies[p->race->body].slots[i].name, sizeof(buf));
-        p->body.slots[i].name = string_make(buf);
-    }
-
-    /* Get a random name */
-    create_random_name(
-        player->race->ridx, player->full_name, sizeof(player->full_name));
-
-    /* Give the player some money */
-    player->au = player->au_birth = z_info->start_gold;
-
-    /* Need some HP */
-    borg_roll_hp();
-
-    /* Player knows all combat runes. Maybe make them not runes? */
-    player->obj_k->to_a = 1;
-    player->obj_k->to_h = 1;
-    player->obj_k->to_d = 1;
-
-    /* Player learns innate runes */
-    player_learn_innate(player);
-
-    /* Initialise the spells */
-    player_spells_init(player);
-
-    /* outfit the player */
-    borg_outfit_player(player);
-
-    /* generate town */
-    player->upkeep->generate_level = true;
-    player->upkeep->playing        = true;
-
-    struct command fake_cmd;
-    /* fake up a command */
-    my_strcpy(fake_cmd.arg[0].name, "choice", sizeof(fake_cmd.arg[0].name));
-    fake_cmd.arg[0].data.choice = 1;
-    do_cmd_reset_stats(&fake_cmd);
-
-    /* Initialise the stores, dungeon */
-    store_reset();
-    chunk_list_max = 0;
-
-    /* Restore the standard artifacts (randarts may have been loaded) */
-    cleanup_parser(&randart_parser);
-    deactivate_randart_file();
-    run_parser(&artifact_parser);
-
-    /* Now only randomize the artifacts if required */
-    if (OPT(player, birth_randarts)) {
-        seed_randart = randint0(0x10000000);
-        do_randart(seed_randart, true);
-        deactivate_randart_file();
-    }
-
-    /* Flush it */
-    Term_fresh();
-
-    /*** React to race and class ***/
+    borg.player = player;
 
     /* Notice the new race and class */
     borg_prepare_race_class_info();
 
-#if false
-    /* need to check all stats */
-    for (int tmp_i = 0; tmp_i < STAT_MAX; tmp_i++)
-        my_need_stat_check[tmp_i] = true;
-#endif
-
     borg_notice_player();
 
-    /* Message */
-    borg_note("# Respawning");
-    borg.status.respawning = 5;
-
-    /* fully healed and rested */
-    player->chp = player->mhp;
-    player->csp = player->msp;
-    player->upkeep->energy_use = 100;
-
-    /* don't notice or update immediately */
-    p->upkeep->notice = 0;
-    p->upkeep->update = 0;
-    p->upkeep->redraw = 0;
-
-    /* restore the cave */
-    cave = sv_cave;
-    player->cave = sv_player_cave;
-    player->grid = sv_grid;
-
-    /* the new player is now ready */
-    character_generated = true;
+    /* set the old depth so we know we are on a new level */
+    borg.status.old_depth = 128;
 
     /* Mark savefile as borg cheater */
     if (!(player->noscore & NOSCORE_BORG))
         player->noscore |= NOSCORE_BORG;
 
-    /* Done.  Play on */
+    borg_reinit_options();
+
+    /* We need the borg to keep playing after he dies */
+    option_set("cheat_live", true);
+
+    /* Message */
+    borg_note("# Done respawning");
+}
+
+/*
+ * Allow the borg to play continuously.  Reset all values,
+ */
+void borg_reincarnate_start(void)
+{
+    char full_name[PLAYER_NAME_LEN];
+    unsigned int  race;
+    unsigned int  class;
+
+    borg.status.respawning = true;
+
+    /* clear out the old reactions */
+    borg_clear_reactions();
+
+    borg_note("# Respawning");
+
+    /* New character */
+    borg_keypress('n');
+    borg_keypress('y');
+
+    /* Not based on old character  */
+    borg_keypress('n');
+
+    if (borg_cfg[BORG_RESPAWN_RACE] != -1)
+        race = borg_cfg[BORG_RESPAWN_RACE];
+    else
+        race = randint0(MAX_RACES);
+    if (borg_cfg[BORG_RESPAWN_CLASS] != -1)
+        class = borg_cfg[BORG_RESPAWN_CLASS];
+    else
+        class = randint0(MAX_CLASSES);
+
+    /* pick race */
+    if (race != player->race->ridx) {
+        borg_keypress(all_letters[race]);
+    }
+    borg_keypress(KC_ENTER);
+
+    /* pick class */
+    if (class != player->class->cidx) {
+        borg_keypress(all_letters[class]);
+    }
+    borg_keypress(KC_ENTER);
+
+    /* point based */
+    borg_keypress(KC_ENTER);
+
+    /* accept points */
+    borg_keypress(KC_ENTER);
+
+    /* Get a random name */
+    create_random_name(race, full_name, sizeof(full_name));
+
+    borg_keypresses(full_name);
+    borg_keypress(KC_ENTER);
+
+    /* accept history */
+    borg_keypress(KC_ENTER);
+
+    /* continue */
+    borg_keypress(KC_ENTER);
 }
 
 #endif

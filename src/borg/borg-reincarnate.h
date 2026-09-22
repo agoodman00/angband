@@ -25,10 +25,21 @@
 
 #ifdef ALLOW_BORG
 
+
+/*
+ * Reincarnate the borg even when he isn't dead yet.
+ */
+extern void borg_force_reincarnate(void);
+
 /*
  * Allow the borg to play continously.  Reset all values,
  */
-extern void reincarnate_borg(void);
+extern void borg_reincarnate_start(void);
+
+/*
+ * End the reincarnation process, and set up the borg to continue playing
+ */
+extern void borg_reincarnate_end(void);
 
 #endif
 #endif

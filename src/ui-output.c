@@ -104,16 +104,25 @@ static void display_area(const wchar_t *text, const uint8_t *attrs,
 		size_t n_lines,
 		region area, size_t line_from)
 {
-	size_t i, j;
+	size_t i;
 
 	n_lines = MIN(n_lines, (size_t) area.page_rows);
 
 	for (i = 0; i < n_lines; i++) {
+		size_t st = line_starts[line_from + i];
+		size_t ll = line_lengths[line_from + i];
+		size_t j0, j1;
+
 		Term_erase(area.col, area.row + i, area.width);
-		for (j = 0; j < line_lengths[line_from + i]; j++) {
-			Term_putch(area.col + j, area.row + i,
-					attrs[line_starts[line_from + i] + j],
-					text[line_starts[line_from + i] + j]);
+		for (j0 = 0; j0 < ll; j0 = j1) {
+			uint8_t a = attrs[st + j0];
+
+			j1 = j0 + 1;
+			while (j1 < ll && attrs[st + j1] == a) {
+				++j1;
+			}
+			Term_queue_chars(area.col + j0, area.row + i,
+				(int)(j1 - j0), a, text + st + j0);
 		}
 	}
 }
@@ -299,20 +308,20 @@ void text_out_to_screen(uint8_t a, const char *str)
 
 		/* Wrap words as needed */
 		if ((x >= wrap - 1) && (ch != L' ')) {
-			int i, n = 0;
-
-			int av[256];
-			wchar_t cv[256];
+			int i, j, n = 0;
+			int av[40];
+			wchar_t cv[40];
 
 			/* Wrap word */
 			if (x < wrap) {
 				/* Scan existing text */
-				for (i = wrap - 2; i >= 0; i--) {
+				for (i = wrap - 2, j = (int)N_ELEMENTS(av) - 1;
+						i >= 0 && j >= 0; i--, j--) {
 					/* Grab existing attr/char */
-					Term_what(i, y, &av[i], &cv[i]);
+					Term_what(i, y, &av[j], &cv[j]);
 
 					/* Break on space */
-					if (cv[i] == L' ') break;
+					if (cv[j] == L' ') break;
 
 					/* Track current word */
 					n = i;
@@ -336,12 +345,22 @@ void text_out_to_screen(uint8_t a, const char *str)
 			Term_gotoxy(x, y);
 
 			/* Wrap the word (if any) */
-			for (i = n; i < wrap - 1; i++) {
+			for (i = n, j = (int)N_ELEMENTS(av) + 1 - wrap + n;
+					i < wrap - 1; i++, j++) {
 				/* Dump */
-				Term_addch(av[i], cv[i]);
+				Term_addch(av[j], cv[j]);
+			}
 
-				/* Advance (no wrap) */
-				if (++x > wrap) x = wrap;
+			/*
+			 * Advance (no wrap) after adding wrap - 1 - n
+			 * characters
+			 */
+			if (wrap - 1 > n) {
+				if (x <= n + 1) {
+					x += wrap - 1 - n;
+				} else {
+					x = wrap;
+				}
 			}
 		}
 

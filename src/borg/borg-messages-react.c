@@ -125,15 +125,12 @@ bool borg_react_prompted(const char *buf, struct keypress *key,
         /* Note the score */
         borg_enter_score();
 #endif
+        /* Flush keys */
+        borg_flush();
 
-            if (!borg_cfg[BORG_CHEAT_DEATH]) {
-                reincarnate_borg();
-                borg.status.respawning = 7;
-            } else
-                do_cmd_wiz_cure_all(0);
-
-            borg.time.now = 100;
-            key->code     = 'n';
+        if (!borg_cfg[BORG_CHEAT_DEATH]) {
+            borg_reincarnate_start();
+            key->code = 'y';
             return true;
         }
 

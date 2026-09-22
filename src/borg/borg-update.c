@@ -43,6 +43,7 @@
 #include "borg-messages.h"
 #include "borg-prepared.h"
 #include "borg-projection.h"
+#include "borg-reincarnate.h"
 #include "borg-store-buy.h"
 #include "borg-store-sell.h"
 #include "borg-store.h"
@@ -1565,6 +1566,13 @@ void borg_update(void)
     panels.x = (((cave->width - borg_panel_wid()) * 2) / borg_panel_wid()) + 1;
     panels.y = (((cave->height - borg_panel_hgt()) * 2) / borg_panel_hgt()) + 1;
 
+    /* if the old panel info is larger than the cave, reset it */
+    /* this can happen if the player changes levels while there are messages */
+    /* waiting to be processed */
+    if (o_w_x > cave->width || o_w_y > cave->height) {
+        o_w_x = o_w_y = 0;
+    }
+
     /* allocate the detection arrays */
     borg_alloc_detection();
 
@@ -2431,8 +2439,11 @@ void borg_update(void)
 
         /* Reduce fear over time every 10 steps */
         if (!(borg.time.now % 10)) {
-            for (y = 0; y < 6; y++) {
-                for (x = 0; x < 18; x++) {
+            max_x = (AUTO_MAX_X / 11) + 1;
+            max_y = (AUTO_MAX_Y / 11) + 1;
+
+            for (y = 0; y < max_y; y++) {
+                for (x = 0; x < max_x; x++) {
                     if (borg_fear_region[y][x])
                         borg_fear_region[y][x]--;
                 }
@@ -3177,6 +3188,8 @@ void borg_alloc_detection(void)
 
 void borg_init_update(void)
 {
+    borg_free_update();
+
     /* Array of "wanks" */
     borg_wanks = mem_zalloc(AUTO_VIEW_MAX * sizeof(borg_wank));
 
@@ -3188,8 +3201,10 @@ void borg_init_update(void)
 
 void borg_free_update(void)
 {
-    mem_free(borg_wanks);
-    borg_wanks = NULL;
+    if (borg_wanks) {
+        mem_free(borg_wanks);
+        borg_wanks = NULL;
+    }
 }
 
 #endif

@@ -53,7 +53,6 @@
 #include "borg-projection.h"
 #include "borg-recover.h"
 #include "borg-store-sell.h"
-#include "borg-store.h"
 #include "borg-think-dungeon-util.h"
 #include "borg-think-store.h"
 #include "borg-think.h"
@@ -1295,17 +1294,6 @@ bool borg_think_dungeon(void)
     /* this can be done first because it takes no "turns" */
     if (borg_destroy_floor())
         return true;
-
-    /* Allow respawning borgs to update their variables */
-    if (borg.status.respawning > 1) {
-        borg_note(
-            format("# Pressing 'escape' to catch up and get in sync (%d).",
-                borg.status.respawning));
-        borg_keypress(ESCAPE);
-        borg_keypress(ESCAPE);
-        borg.status.respawning--;
-        return true;
-    }
 
     /* add a short pause to slow the borg down for viewing */
     msec = ((player->opts.delay_factor * player->opts.delay_factor)

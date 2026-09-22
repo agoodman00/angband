@@ -1103,7 +1103,9 @@ int object_value_real(const struct object *obj, int qty)
 	int power;
 	/*
 	 * This is the quadratic coefficient for power in the expression for
-	 * the real value.  Must be non-negative.
+	 * the real value.  Must be non-negative.  One case below (power = -1
+	 * and a > 0) assumes that a + b and -(a + b) are representable in an
+	 * int.
 	 */
 	int a = 1;
 	/*
@@ -1159,7 +1161,10 @@ int object_value_real(const struct object *obj, int qty)
 			}
 		} else if (power < 0) {
 			if (a > 0) {
-				if (power > INT_MIN && power >= (INT_MIN / (-power) + b) / a) {
+				if (power == -1) {
+					value = -(a + b);
+				} else if (power > INT_MIN && power >=
+						(INT_MIN / (-power) + b) / a) {
 					value = -power * (power * a - b);
 				} else {
 					value = INT_MIN;
