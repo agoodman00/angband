@@ -92,7 +92,7 @@ void borg_react(const char *msg, const char *buf)
 /*
  * Handle various messages that need response
  */
-bool borg_react_prompted(const char *buf, struct keypress *key, 
+bool borg_react_prompted(const char *buf, struct keypress *key,
     struct loc cursor)
 {
 
@@ -120,25 +120,23 @@ bool borg_react_prompted(const char *buf, struct keypress *key,
             /* Log the death */
             borg_log_death();
             borg_log_death_data();
-
 #if 0
-        /* Note the score */
-        borg_enter_score();
+            /* Note the score */
+            borg_enter_score();
 #endif
-        /* Flush keys */
-        borg_flush();
+            /* Flush keys */
+            borg_flush();
 
-        if (!borg_cfg[BORG_CHEAT_DEATH]) {
-            borg_reincarnate_start();
-            key->code = 'y';
-            return true;
-        }
-        else
-            do_cmd_wiz_cure_all(0);
-
-            borg.time.now = 100;
-            key->code     = 'n';
-            return true;
+            if (!borg_cfg[BORG_CHEAT_DEATH]) {
+                borg_reincarnate_start();
+                key->code = 'y';
+                return true;
+            } else {
+                do_cmd_wiz_cure_all(0);
+                borg.time.now = 100;
+                key->code     = 'n';
+                return true;
+            }
         }
 
         /* with 292, there is a flush(0, 0, 0) introduced as it asks for
