@@ -509,9 +509,25 @@ void borg_item_analyze(
     if (o->slays)
         borg_set_slays(item, o);
 
+    /* for now treat duplicate brands as the same
+     * they have different "power" in the game but I
+     * am not sure what that means */
+    /* translate the brands to the ELEMENTS */
     if (o->brands) {
-        for (i = 0; i < z_info->brand_max; i++)
-            item->brands[i] = o->brands[i];
+        for (i = 0; i < z_info->brand_max; i++) {
+            if (o->brands[i]) {
+                if (brands[i].resist_flag == RF_IM_ACID)
+                    item->brands[ELEM_ACID] = true;
+                else if (brands[i].resist_flag == RF_IM_FIRE)
+                    item->brands[ELEM_FIRE] = true;
+                else if (brands[i].resist_flag == RF_IM_COLD)
+                    item->brands[ELEM_COLD] = true;
+                else if (brands[i].resist_flag == RF_IM_ELEC)
+                    item->brands[ELEM_ELEC] = true;
+                else if (brands[i].resist_flag == RF_IM_POIS)
+                    item->brands[ELEM_POIS] = true;
+            }
+        }
     }
 
     /* check if we know this is the one ring */
