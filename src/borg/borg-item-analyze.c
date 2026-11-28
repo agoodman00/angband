@@ -514,31 +514,37 @@ void borg_item_analyze(
     if (o->brands) {
         for (i = 0; i < z_info->brand_max; i++) {
             if (o->brands[i]) {
-                if (brands[i].resist_flag == RF_IM_ACID)
-                    if (brands[i].multiplier == 2)
+                if (brands[i].resist_flag == RF_IM_ACID) {
+                    if (brands[i].multiplier == 2) {
                         item->brands[BORG_BRAND_ACID2] = true;
-                    else
+                    } else {
                         item->brands[BORG_BRAND_ACID3] = true;
-                else if (brands[i].resist_flag == RF_IM_FIRE)
-                    if (brands[i].multiplier == 2)
+                    }
+                } else if (brands[i].resist_flag == RF_IM_FIRE) {
+                    if (brands[i].multiplier == 2) {
                         item->brands[BORG_BRAND_FIRE2] = true;
-                    else
+                    } else {
                         item->brands[BORG_BRAND_FIRE3] = true;
-                else if (brands[i].resist_flag == RF_IM_COLD)
-                    if (brands[i].multiplier == 2)
+                    }
+                } else if (brands[i].resist_flag == RF_IM_COLD) {
+                    if (brands[i].multiplier == 2) {
                         item->brands[BORG_BRAND_COLD2] = true;
-                    else
+                    } else {
                         item->brands[BORG_BRAND_COLD3] = true;
-                else if (brands[i].resist_flag == RF_IM_ELEC)
-                    if (brands[i].multiplier == 2)
+                    }
+                } else if (brands[i].resist_flag == RF_IM_ELEC) {
+                    if (brands[i].multiplier == 2) {
                         item->brands[BORG_BRAND_ELEC2] = true;
-                    else
+                    } else {
                         item->brands[BORG_BRAND_ELEC3] = true;
-                else if (brands[i].resist_flag == RF_IM_POIS)
-                    if (brands[i].multiplier == 2)
+                    }
+                } else if (brands[i].resist_flag == RF_IM_POIS) {
+                    if (brands[i].multiplier == 2) {
                         item->brands[BORG_BRAND_POIS2] = true;
-                    else
+                    } else {
                         item->brands[BORG_BRAND_POIS3] = true;
+                    }
+                }
             }
         }
     }
