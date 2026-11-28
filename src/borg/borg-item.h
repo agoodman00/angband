@@ -63,6 +63,22 @@ enum {
     BORG_CURSE_MAX                      = 28,
 };
 
+enum {
+    BORG_BRAND_NONE  = 0,
+    BORG_BRAND_POIS2 = 1,
+    BORG_BRAND_COLD2 = 2,
+    BORG_BRAND_FIRE2 = 3,
+    BORG_BRAND_ELEC2 = 4,
+    BORG_BRAND_ACID2 = 5,
+    BORG_BRAND_POIS3 = 6,
+    BORG_BRAND_COLD3 = 7,
+    BORG_BRAND_FIRE3 = 8,
+    BORG_BRAND_ELEC3 = 9,
+    BORG_BRAND_ACID3 = 10,
+    BORG_BRAND_MAX   = 11,
+};
+
+
 /*
  * A structure holding information about an object.  120 bytes.
  *
@@ -121,7 +137,7 @@ struct borg_item {
     bitflag             flags[OF_SIZE]; /**< Object flags */
     int16_t             modifiers[OBJ_MOD_MAX]; /**< Object modifiers*/
     struct element_info el_info[ELEM_MAX]; /**< Object element info */
-    bool                brands[254]; /**< Flag absence/presence of each brand */
+    int16_t             brands[BORG_BRAND_MAX]; /**< Flag absence/presence of each brand */
     /* HACK this should be dynamic but we don't know when borg_item's go away */
     int slays[RF_MAX]; /**< power of slays based on race flag */
 };

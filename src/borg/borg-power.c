@@ -118,14 +118,32 @@ static int32_t borg_power_equipment(void)
         value += (dam * 6) / 2;
     if (borg.trait[BI_WS_GIANT])
         value += (dam * 4) / 2;
-    if (borg.trait[BI_WB_ACID])
+
+    /* elemental brands */
+    /* x2 for the vulnerable */
+    if (borg.trait[BI_WB_ACID2])
         value += (dam * 4) / 2;
-    if (borg.trait[BI_WB_ELEC])
+    if (borg.trait[BI_WB_ELEC2])
         value += (dam * 5) / 2;
-    if (borg.trait[BI_WB_FIRE])
-        value += (dam * 3) / 2;
-    if (borg.trait[BI_WB_COLD])
-        value += (dam * 3) / 2;
+    if (borg.trait[BI_WB_FIRE2])
+        value += (dam * 4) / 2;
+    if (borg.trait[BI_WB_COLD2])
+        value += (dam * 4) / 2;
+    if (borg.trait[BI_WB_POIS2])
+        value += (dam * 6) / 2;
+
+    /* x3 for the vulnerable */
+    if (borg.trait[BI_WB_ACID3])
+        value += (dam * 5) / 2;
+    if (borg.trait[BI_WB_ELEC3])
+        value += (dam * 6) / 2;
+    if (borg.trait[BI_WB_FIRE3])
+        value += (dam * 5) / 2;
+    if (borg.trait[BI_WB_COLD3])
+        value += (dam * 5) / 2;
+    if (borg.trait[BI_WB_POIS3])
+        value += (dam * 7) / 2;
+
     /* SOrc and STroll get 1/2 of reward now */
     if (borg.trait[BI_WS_ORC])
         value += (dam * 1) / 2;

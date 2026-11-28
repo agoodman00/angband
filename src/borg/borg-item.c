@@ -23,10 +23,12 @@
 
 #include "../ui-menu.h"
 
+#include "borg-init.h"
 #include "borg-inventory.h"
 #include "borg-io.h"
 #include "borg-item-val.h"
 #include "borg-store.h"
+#include <obj-slays.h>
 
 
 /*
@@ -135,6 +137,103 @@ void borg_find_all_items(void) {
  */
 void borg_init_item(void)
 {
+    if (BORG_BRAND_MAX != z_info->brand_max) {
+        borg_note(format(
+            "borg init failure BORG_BRAND_MAX (%d) != z_info->brand_max (%d)",
+            BORG_BRAND_MAX, z_info->brand_max));
+        borg_init_failure = true;
+    }
+    for (int i = 1; i < BORG_BRAND_MAX; i++) {
+        if (brands[i].multiplier == 2) {
+            if (brands[i].resist_flag == RF_IM_ACID) {
+                if (i != BORG_BRAND_ACID2) {
+                    borg_note(
+                        format("borg init failure BORG_BRAND_ACID2 (%d) != %d",
+                            BORG_BRAND_ACID2, i));
+                    borg_init_failure = true;
+                }
+            } else if (brands[i].resist_flag == RF_IM_ELEC) {
+                if (i != BORG_BRAND_ELEC2) {
+                    borg_note(
+                        format("borg init failure BORG_BRAND_ELEC2 (%d) != %d",
+                            BORG_BRAND_ELEC2, i));
+                    borg_init_failure = true;
+                }
+            } else if (brands[i].resist_flag == RF_IM_FIRE) {
+                if (i != BORG_BRAND_FIRE2) {
+                    borg_note(
+                        format("borg init failure BORG_BRAND_FIRE2 (%d) != %d",
+                            BORG_BRAND_FIRE2, i));
+                    borg_init_failure = true;
+                }
+            } else if (brands[i].resist_flag == RF_IM_POIS) {
+                if (i != BORG_BRAND_POIS2) {
+                    borg_note(
+                        format("borg init failure BORG_BRAND_POIS2 (%d) != %d",
+                            BORG_BRAND_POIS2, i));
+                    borg_init_failure = true;
+                }
+            } else if (brands[i].resist_flag == RF_IM_COLD)
+            {
+                if (i != BORG_BRAND_COLD2) {
+                    borg_note(
+                        format("borg init failure BORG_BRAND_COLD2 (%d) != %d",
+                            BORG_BRAND_COLD2, i));
+                    borg_init_failure = true;
+                }
+            }
+            else
+            {
+                borg_note(format("borg init failure unknown brand %d", i));
+                borg_init_failure = true;
+            }
+        } else if (brands[i].multiplier == 3) {
+            if (brands[i].resist_flag == RF_IM_ACID) {
+                if (i != BORG_BRAND_ACID3) {
+                    borg_note(
+                        format("borg init failure BORG_BRAND_ACID3 (%d) != %d",
+                            BORG_BRAND_ACID3, i));
+                    borg_init_failure = true;
+                }
+            } else if (brands[i].resist_flag == RF_IM_ELEC) {
+                if (i != BORG_BRAND_ELEC3) {
+                    borg_note(
+                        format("borg init failure BORG_BRAND_ELEC3 (%d) != %d",
+                            BORG_BRAND_ELEC3, i));
+                    borg_init_failure = true;
+                }
+            } else if (brands[i].resist_flag == RF_IM_FIRE) {
+                if (i != BORG_BRAND_FIRE3) {
+                    borg_note(
+                        format("borg init failure BORG_BRAND_FIRE3 (%d) != %d",
+                            BORG_BRAND_FIRE3, i));
+                    borg_init_failure = true;
+                }
+            } else if (brands[i].resist_flag == RF_IM_POIS) {
+                if (i != BORG_BRAND_POIS3) {
+                    borg_note(
+                        format("borg init failure BORG_BRAND_POIS3 (%d) != %d",
+                            BORG_BRAND_POIS3, i));
+                    borg_init_failure = true;
+                }
+            } else if (brands[i].resist_flag == RF_IM_COLD) {
+                if (i != BORG_BRAND_COLD3) {
+                    borg_note(
+                        format("borg init failure BORG_BRAND_COLD3 (%d) != %d",
+                            BORG_BRAND_COLD3, i));
+                    borg_init_failure = true;
+                }
+            } else {
+                borg_note(format("borg init failure unknown brand %d", i));
+                borg_init_failure = true;
+            }
+        } else {
+            borg_note(format("borg init failure unknown brand %s multiplier %d",
+                brands[i].name, brands[i].multiplier));
+            borg_init_failure = true;
+        }
+    }
+
     /*** Item/Ware arrays ***/
 
     /* Make the inventory array */

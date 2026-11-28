@@ -1009,29 +1009,75 @@ void borg_display_status(void)
                 attr = COLOUR_SLATE;
             Term_putstr(22, 12, -1, attr, "Dragon");
 
-            if (borg.trait[BI_WB_ACID])
-                attr = COLOUR_BLUE;
-            else
-                attr = COLOUR_SLATE;
-            Term_putstr(1, 13, -1, attr, "Acid");
+            if (borg.trait[BI_WB_ACID2] && !borg.trait[BI_WB_ACID3]) {
+                if (borg.trait[BI_WB_ACID2])
+                    attr = COLOUR_BLUE;
+                else
+                    attr = COLOUR_SLATE;
+                Term_putstr(1, 13, -1, attr, "Acid2");
+            } else {
+                if (borg.trait[BI_WB_ACID3])
+                    attr = COLOUR_BLUE;
+                else
+                    attr = COLOUR_SLATE;
+                Term_putstr(1, 13, -1, attr, "Acid3");
+            }
 
-            if (borg.trait[BI_WB_COLD])
-                attr = COLOUR_BLUE;
-            else
-                attr = COLOUR_SLATE;
-            Term_putstr(8, 13, -1, attr, "Cold");
+            if (borg.trait[BI_WB_COLD2] && !borg.trait[BI_WB_COLD3]) {
+                if (borg.trait[BI_WB_COLD2])
+                    attr = COLOUR_BLUE;
+                else
+                    attr = COLOUR_SLATE;
+                Term_putstr(8, 13, -1, attr, "Cold2");
+            } else {
+                if (borg.trait[BI_WB_COLD3])
+                    attr = COLOUR_BLUE;
+                else
+                    attr = COLOUR_SLATE;
+                Term_putstr(8, 13, -1, attr, "Cold3");
+            }
 
-            if (borg.trait[BI_WB_ELEC])
-                attr = COLOUR_BLUE;
-            else
-                attr = COLOUR_SLATE;
-            Term_putstr(15, 13, -1, attr, "Elec");
+            if (borg.trait[BI_WB_ELEC2] && !borg.trait[BI_WB_ELEC3]) {
+                if (borg.trait[BI_WB_ELEC2])
+                    attr = COLOUR_BLUE;
+                else
+                    attr = COLOUR_SLATE;
+                Term_putstr(15, 13, -1, attr, "Elec2");
+            } else {
+                if (borg.trait[BI_WB_ELEC3])
+                    attr = COLOUR_BLUE;
+                else
+                    attr = COLOUR_SLATE;
+                Term_putstr(15, 13, -1, attr, "Elec3");
+            }
 
-            if (borg.trait[BI_WB_FIRE])
-                attr = COLOUR_BLUE;
-            else
-                attr = COLOUR_SLATE;
-            Term_putstr(22, 13, -1, attr, "Fire");
+            if (borg.trait[BI_WB_FIRE2] && !borg.trait[BI_WB_FIRE3]) {
+                if (borg.trait[BI_WB_FIRE2])
+                    attr = COLOUR_BLUE;
+                else
+                    attr = COLOUR_SLATE;
+                Term_putstr(22, 13, -1, attr, "Fire2");
+            } else {
+                if (borg.trait[BI_WB_FIRE3])
+                    attr = COLOUR_BLUE;
+                else
+                    attr = COLOUR_SLATE;
+                Term_putstr(22, 13, -1, attr, "Fire3");
+            }
+
+            if (borg.trait[BI_WB_POIS2] && !borg.trait[BI_WB_POIS3]) {
+                if (borg.trait[BI_WB_POIS2])
+                    attr = COLOUR_BLUE;
+                else
+                    attr = COLOUR_SLATE;
+                Term_putstr(1, 14, -1, attr, "Pois2");
+            } else {
+                if (borg.trait[BI_WB_FIRE3])
+                    attr = COLOUR_BLUE;
+                else
+                    attr = COLOUR_SLATE;
+                Term_putstr(1, 14, -1, attr, "Pois3");
+            }
 
             /* Display the Concerns */
             Term_putstr(36, 10, -1, COLOUR_WHITE, "Concerns:");

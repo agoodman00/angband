@@ -509,23 +509,36 @@ void borg_item_analyze(
     if (o->slays)
         borg_set_slays(item, o);
 
-    /* for now treat duplicate brands as the same
-     * they have different "power" in the game but I
-     * am not sure what that means */
-    /* translate the brands to the ELEMENTS */
+    /* Make the assumption that brand resistances are the same as the
+     * the brand type.*/
     if (o->brands) {
         for (i = 0; i < z_info->brand_max; i++) {
             if (o->brands[i]) {
                 if (brands[i].resist_flag == RF_IM_ACID)
-                    item->brands[ELEM_ACID] = true;
+                    if (brands[i].multiplier == 2)
+                        item->brands[BORG_BRAND_ACID2] = true;
+                    else
+                        item->brands[BORG_BRAND_ACID3] = true;
                 else if (brands[i].resist_flag == RF_IM_FIRE)
-                    item->brands[ELEM_FIRE] = true;
+                    if (brands[i].multiplier == 2)
+                        item->brands[BORG_BRAND_FIRE2] = true;
+                    else
+                        item->brands[BORG_BRAND_FIRE3] = true;
                 else if (brands[i].resist_flag == RF_IM_COLD)
-                    item->brands[ELEM_COLD] = true;
+                    if (brands[i].multiplier == 2)
+                        item->brands[BORG_BRAND_COLD2] = true;
+                    else
+                        item->brands[BORG_BRAND_COLD3] = true;
                 else if (brands[i].resist_flag == RF_IM_ELEC)
-                    item->brands[ELEM_ELEC] = true;
+                    if (brands[i].multiplier == 2)
+                        item->brands[BORG_BRAND_ELEC2] = true;
+                    else
+                        item->brands[BORG_BRAND_ELEC3] = true;
                 else if (brands[i].resist_flag == RF_IM_POIS)
-                    item->brands[ELEM_POIS] = true;
+                    if (brands[i].multiplier == 2)
+                        item->brands[BORG_BRAND_POIS2] = true;
+                    else
+                        item->brands[BORG_BRAND_POIS3] = true;
             }
         }
     }

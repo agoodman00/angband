@@ -50,11 +50,16 @@ uint8_t weapon_swap_slay_troll;
 uint8_t weapon_swap_slay_giant;
 uint8_t weapon_swap_slay_dragon;
 uint8_t weapon_swap_impact;
-uint8_t weapon_swap_brand_acid;
-uint8_t weapon_swap_brand_elec;
-uint8_t weapon_swap_brand_fire;
-uint8_t weapon_swap_brand_cold;
-uint8_t weapon_swap_brand_pois;
+uint8_t weapon_swap_brand_acid2;
+uint8_t weapon_swap_brand_elec2;
+uint8_t weapon_swap_brand_fire2;
+uint8_t weapon_swap_brand_cold2;
+uint8_t weapon_swap_brand_pois2;
+uint8_t weapon_swap_brand_acid3;
+uint8_t weapon_swap_brand_elec3;
+uint8_t weapon_swap_brand_fire3;
+uint8_t weapon_swap_brand_cold3;
+uint8_t weapon_swap_brand_pois3;
 uint8_t weapon_swap_see_infra;
 uint8_t weapon_swap_slow_digest;
 uint8_t weapon_swap_aggravate;
@@ -95,11 +100,16 @@ uint8_t armour_swap_slay_troll;
 uint8_t armour_swap_slay_giant;
 uint8_t armour_swap_slay_dragon;
 uint8_t armour_swap_impact;
-uint8_t armour_swap_brand_acid;
-uint8_t armour_swap_brand_elec;
-uint8_t armour_swap_brand_fire;
-uint8_t armour_swap_brand_cold;
-uint8_t armour_swap_brand_pois;
+uint8_t armour_swap_brand_acid2;
+uint8_t armour_swap_brand_elec2;
+uint8_t armour_swap_brand_fire2;
+uint8_t armour_swap_brand_cold2;
+uint8_t armour_swap_brand_pois2;
+uint8_t armour_swap_brand_acid3;
+uint8_t armour_swap_brand_elec3;
+uint8_t armour_swap_brand_fire3;
+uint8_t armour_swap_brand_cold3;
+uint8_t armour_swap_brand_pois3;
 uint8_t armour_swap_see_infra;
 uint8_t armour_swap_slow_digest;
 uint8_t armour_swap_aggravate;
@@ -210,11 +220,16 @@ void borg_notice_weapon_swap(void)
         weapon_swap_slay_giant   = 0;
         weapon_swap_slay_dragon  = 0;
         weapon_swap_impact       = false;
-        weapon_swap_brand_acid   = false;
-        weapon_swap_brand_elec   = false;
-        weapon_swap_brand_fire   = false;
-        weapon_swap_brand_cold   = false;
-        weapon_swap_brand_pois   = false;
+        weapon_swap_brand_acid2  = false;
+        weapon_swap_brand_elec2  = false;
+        weapon_swap_brand_fire2  = false;
+        weapon_swap_brand_cold2  = false;
+        weapon_swap_brand_pois2  = false;
+        weapon_swap_brand_acid3  = false;
+        weapon_swap_brand_elec3  = false;
+        weapon_swap_brand_fire3  = false;
+        weapon_swap_brand_cold3  = false;
+        weapon_swap_brand_pois3  = false;
         weapon_swap_see_infra    = false;
         weapon_swap_slow_digest  = false;
         weapon_swap_aggravate    = false;
@@ -287,16 +302,26 @@ void borg_notice_weapon_swap(void)
             weapon_swap_slay_giant  = item->slays[RF_GIANT];
             weapon_swap_slay_dragon = item->slays[RF_DRAGON];
 
-            if (item->brands[ELEM_ACID])
-                weapon_swap_brand_acid = true;
-            if (item->brands[ELEM_ELEC])
-                weapon_swap_brand_elec = true;
-            if (item->brands[ELEM_FIRE])
-                weapon_swap_brand_fire = true;
-            if (item->brands[ELEM_COLD])
-                weapon_swap_brand_cold = true;
-            if (item->brands[ELEM_POIS])
-                weapon_swap_brand_pois = true;
+            if (item->brands[BORG_BRAND_ACID2])
+                weapon_swap_brand_acid2 = true;
+            if (item->brands[BORG_BRAND_ELEC2])
+                weapon_swap_brand_elec2 = true;
+            if (item->brands[BORG_BRAND_FIRE2])
+                weapon_swap_brand_fire2 = true;
+            if (item->brands[BORG_BRAND_COLD2])
+                weapon_swap_brand_cold2 = true;
+            if (item->brands[BORG_BRAND_POIS2])
+                weapon_swap_brand_pois2 = true;
+            if (item->brands[BORG_BRAND_ACID3])
+                weapon_swap_brand_acid3 = true;
+            if (item->brands[BORG_BRAND_ELEC3])
+                weapon_swap_brand_elec3 = true;
+            if (item->brands[BORG_BRAND_FIRE3])
+                weapon_swap_brand_fire3 = true;
+            if (item->brands[BORG_BRAND_COLD3])
+                weapon_swap_brand_cold3 = true;
+            if (item->brands[BORG_BRAND_POIS3])
+                weapon_swap_brand_pois3 = true;
 
             /* Affect infravision */
             weapon_swap_see_infra += item->modifiers[OBJ_MOD_INFRA];
@@ -391,7 +416,7 @@ void borg_notice_weapon_swap(void)
             /* assume 2x base damage for x% of creatures */
             dam = damage * 2 * borg.trait[BI_BLOWS];
             /* reward SAnimal if no electric brand */
-            if (!borg.trait[BI_WS_ANIMAL] && !borg.trait[BI_WB_ELEC]
+            if (!borg.trait[BI_WS_ANIMAL] && !borg.trait[BI_WB_ELEC2]
                 && weapon_swap_slay_animal)
                 v += (dam * weapon_swap_slay_animal) / 2;
             if (!borg.trait[BI_WS_EVIL] && weapon_swap_slay_evil)
@@ -415,16 +440,26 @@ void borg_notice_weapon_swap(void)
             if (!borg.trait[BI_WS_DRAGON] && !borg.trait[BI_WK_DRAGON]
                 && weapon_swap_slay_dragon)
                 v += (dam * weapon_swap_slay_dragon) / 2;
-            if (!borg.trait[BI_WB_ACID] && weapon_swap_brand_acid)
+            if (!borg.trait[BI_WB_ACID2] && weapon_swap_brand_acid2)
                 v += (dam * 4) / 2;
-            if (!borg.trait[BI_WB_ELEC] && weapon_swap_brand_elec)
+            if (!borg.trait[BI_WB_ELEC2] && weapon_swap_brand_elec2)
                 v += (dam * 5) / 2;
-            if (!borg.trait[BI_WB_FIRE] && weapon_swap_brand_fire)
+            if (!borg.trait[BI_WB_FIRE2] && weapon_swap_brand_fire2)
                 v += (dam * 3) / 2;
-            if (!borg.trait[BI_WB_COLD] && weapon_swap_brand_cold)
+            if (!borg.trait[BI_WB_COLD2] && weapon_swap_brand_cold2)
                 v += (dam * 3) / 2;
-            if (!borg.trait[BI_WB_POIS] && weapon_swap_brand_pois)
+            if (!borg.trait[BI_WB_POIS2] && weapon_swap_brand_pois2)
                 v += (dam * 3) / 2;
+            if (!borg.trait[BI_WB_ACID3] && weapon_swap_brand_acid3)
+                v += (dam * 5) / 2;
+            if (!borg.trait[BI_WB_ELEC3] && weapon_swap_brand_elec3)
+                v += (dam * 6) / 2;
+            if (!borg.trait[BI_WB_FIRE3] && weapon_swap_brand_fire3)
+                v += (dam * 4) / 2;
+            if (!borg.trait[BI_WB_COLD3] && weapon_swap_brand_cold3)
+                v += (dam * 4) / 2;
+            if (!borg.trait[BI_WB_POIS3] && weapon_swap_brand_pois3)
+                v += (dam * 4) / 2;
             /* Orcs and Trolls get the second half of the reward if SEvil is */
             /* not possessed. */
             if (!borg.trait[BI_WS_ORC] && !borg.trait[BI_WS_EVIL]
@@ -564,11 +599,16 @@ void borg_notice_weapon_swap(void)
     weapon_swap_slay_giant   = 0;
     weapon_swap_slay_dragon  = 0;
     weapon_swap_impact       = false;
-    weapon_swap_brand_acid   = false;
-    weapon_swap_brand_elec   = false;
-    weapon_swap_brand_fire   = false;
-    weapon_swap_brand_cold   = false;
-    weapon_swap_brand_pois   = false;
+    weapon_swap_brand_acid2  = false;
+    weapon_swap_brand_elec2  = false;
+    weapon_swap_brand_fire2  = false;
+    weapon_swap_brand_cold2  = false;
+    weapon_swap_brand_pois2  = false;
+    weapon_swap_brand_acid3  = false;
+    weapon_swap_brand_elec3  = false;
+    weapon_swap_brand_fire3  = false;
+    weapon_swap_brand_cold3  = false;
+    weapon_swap_brand_pois3  = false;
     weapon_swap_see_infra    = false;
     weapon_swap_slow_digest  = false;
     weapon_swap_aggravate    = false;
@@ -654,16 +694,26 @@ void borg_notice_weapon_swap(void)
     weapon_swap_slay_undead = item->slays[RF_UNDEAD];
     weapon_swap_slay_demon  = item->slays[RF_DEMON];
 
-    if (item->brands[ELEM_ACID])
-        weapon_swap_brand_acid = true;
-    if (item->brands[ELEM_ELEC])
-        weapon_swap_brand_elec = true;
-    if (item->brands[ELEM_FIRE])
-        weapon_swap_brand_fire = true;
-    if (item->brands[ELEM_COLD])
-        weapon_swap_brand_cold = true;
-    if (item->brands[ELEM_POIS])
-        weapon_swap_brand_pois = true;
+    if (item->brands[BORG_BRAND_ACID2])
+        weapon_swap_brand_acid2 = true;
+    if (item->brands[BORG_BRAND_ELEC2])
+        weapon_swap_brand_elec2 = true;
+    if (item->brands[BORG_BRAND_FIRE2])
+        weapon_swap_brand_fire2 = true;
+    if (item->brands[BORG_BRAND_COLD2])
+        weapon_swap_brand_cold2 = true;
+    if (item->brands[BORG_BRAND_POIS2])
+        weapon_swap_brand_pois2 = true;
+    if (item->brands[BORG_BRAND_ACID3])
+        weapon_swap_brand_acid3 = true;
+    if (item->brands[BORG_BRAND_ELEC3])
+        weapon_swap_brand_elec3 = true;
+    if (item->brands[BORG_BRAND_FIRE3])
+        weapon_swap_brand_fire3 = true;
+    if (item->brands[BORG_BRAND_COLD3])
+        weapon_swap_brand_cold3 = true;
+    if (item->brands[BORG_BRAND_POIS3])
+        weapon_swap_brand_pois3 = true;
 
     /* Affect infravision */
     weapon_swap_see_infra += item->modifiers[OBJ_MOD_INFRA];
@@ -804,11 +854,16 @@ void borg_notice_armour_swap(void)
         armour_swap_slay_giant   = 0;
         armour_swap_slay_dragon  = 0;
         armour_swap_impact       = false;
-        armour_swap_brand_acid   = false;
-        armour_swap_brand_elec   = false;
-        armour_swap_brand_fire   = false;
-        armour_swap_brand_cold   = false;
-        armour_swap_brand_pois   = false;
+        armour_swap_brand_acid2  = false;
+        armour_swap_brand_elec2  = false;
+        armour_swap_brand_fire2  = false;
+        armour_swap_brand_cold2  = false;
+        armour_swap_brand_pois2  = false;
+        armour_swap_brand_acid3  = false;
+        armour_swap_brand_elec3  = false;
+        armour_swap_brand_fire3  = false;
+        armour_swap_brand_cold3  = false;
+        armour_swap_brand_pois3  = false;
         armour_swap_see_infra    = false;
         armour_swap_slow_digest  = false;
         armour_swap_aggravate    = false;
@@ -867,16 +922,26 @@ void borg_notice_armour_swap(void)
             armour_swap_slay_dragon = item->slays[RF_DRAGON];
             if (of_has(item->flags, OF_IMPACT))
                 armour_swap_impact = true;
-            if (item->brands[ELEM_ACID])
-                armour_swap_brand_acid = true;
-            if (item->brands[ELEM_ELEC])
-                armour_swap_brand_elec = true;
-            if (item->brands[ELEM_FIRE])
-                armour_swap_brand_fire = true;
-            if (item->brands[ELEM_COLD])
-                armour_swap_brand_cold = true;
-            if (item->brands[ELEM_POIS])
-                armour_swap_brand_pois = true;
+            if (item->brands[BORG_BRAND_ACID2])
+                armour_swap_brand_acid2 = true;
+            if (item->brands[BORG_BRAND_ELEC2])
+                armour_swap_brand_elec2 = true;
+            if (item->brands[BORG_BRAND_FIRE2])
+                armour_swap_brand_fire2 = true;
+            if (item->brands[BORG_BRAND_COLD2])
+                armour_swap_brand_cold2 = true;
+            if (item->brands[BORG_BRAND_POIS2])
+                armour_swap_brand_pois2 = true;
+            if (item->brands[BORG_BRAND_ACID3])
+                armour_swap_brand_acid3 = true;
+            if (item->brands[BORG_BRAND_ELEC3])
+                armour_swap_brand_elec3 = true;
+            if (item->brands[BORG_BRAND_FIRE3])
+                armour_swap_brand_fire3 = true;
+            if (item->brands[BORG_BRAND_COLD3])
+                armour_swap_brand_cold3 = true;
+            if (item->brands[BORG_BRAND_POIS3])
+                armour_swap_brand_pois3 = true;
 
             /* Affect infravision */
             armour_swap_see_infra += item->modifiers[OBJ_MOD_INFRA];
@@ -970,7 +1035,7 @@ void borg_notice_armour_swap(void)
             /* assume 2x base damage for x% of creatures */
             dam = damage * 2 * borg.trait[BI_BLOWS];
 
-            if (!borg.trait[BI_WS_ANIMAL] && !borg.trait[BI_WB_ELEC]
+            if (!borg.trait[BI_WS_ANIMAL] && !borg.trait[BI_WB_ELEC2]
                 && armour_swap_slay_animal)
                 v += (dam * armour_swap_slay_animal) / 2;
             if (!borg.trait[BI_WS_EVIL] && armour_swap_slay_evil)
@@ -987,16 +1052,26 @@ void borg_notice_armour_swap(void)
             if (!borg.trait[BI_WS_DRAGON] && !borg.trait[BI_WK_DRAGON]
                 && armour_swap_slay_dragon)
                 v += (dam * armour_swap_slay_dragon) / 2;
-            if (!borg.trait[BI_WB_ACID] && armour_swap_brand_acid)
+            if (!borg.trait[BI_WB_ACID2] && armour_swap_brand_acid2)
                 v += (dam * 4) / 2;
-            if (!borg.trait[BI_WB_ELEC] && armour_swap_brand_elec)
+            if (!borg.trait[BI_WB_ELEC2] && armour_swap_brand_elec2)
                 v += (dam * 5) / 2;
-            if (!borg.trait[BI_WB_FIRE] && armour_swap_brand_fire)
+            if (!borg.trait[BI_WB_FIRE2] && armour_swap_brand_fire2)
                 v += (dam * 3) / 2;
-            if (!borg.trait[BI_WB_COLD] && armour_swap_brand_cold)
+            if (!borg.trait[BI_WB_COLD2] && armour_swap_brand_cold2)
                 v += (dam * 3) / 2;
-            if (!borg.trait[BI_WB_POIS] && armour_swap_brand_pois)
+            if (!borg.trait[BI_WB_POIS2] && armour_swap_brand_pois2)
                 v += (dam * 3) / 2;
+            if (!borg.trait[BI_WB_ACID3] && armour_swap_brand_acid3)
+                v += (dam * 5) / 2;
+            if (!borg.trait[BI_WB_ELEC3] && armour_swap_brand_elec3)
+                v += (dam * 6) / 2;
+            if (!borg.trait[BI_WB_FIRE3] && armour_swap_brand_fire3)
+                v += (dam * 4) / 2;
+            if (!borg.trait[BI_WB_COLD3] && armour_swap_brand_cold3)
+                v += (dam * 4) / 2;
+            if (!borg.trait[BI_WB_POIS3] && armour_swap_brand_pois3)
+                v += (dam * 4) / 2;
             /* SOrc and STroll get 1/2 reward now */
             if (!borg.trait[BI_WS_ORC] && armour_swap_slay_orc)
                 v += (dam * armour_swap_slay_orc) / 2;
@@ -1138,11 +1213,16 @@ void borg_notice_armour_swap(void)
     armour_swap_slay_giant   = 0;
     armour_swap_slay_dragon  = 0;
     armour_swap_impact       = false;
-    armour_swap_brand_acid   = false;
-    armour_swap_brand_elec   = false;
-    armour_swap_brand_fire   = false;
-    armour_swap_brand_cold   = false;
-    armour_swap_brand_pois   = false;
+    armour_swap_brand_acid2  = false;
+    armour_swap_brand_elec2  = false;
+    armour_swap_brand_fire2  = false;
+    armour_swap_brand_cold2  = false;
+    armour_swap_brand_pois2  = false;
+    armour_swap_brand_acid3  = false;
+    armour_swap_brand_elec3  = false;
+    armour_swap_brand_fire3  = false;
+    armour_swap_brand_cold3  = false;
+    armour_swap_brand_pois3  = false;
     armour_swap_see_infra    = false;
     armour_swap_slow_digest  = false;
     armour_swap_aggravate    = false;
@@ -1191,16 +1271,26 @@ void borg_notice_armour_swap(void)
     armour_swap_slay_giant  = item->slays[RF_GIANT];
     armour_swap_slay_dragon = item->slays[RF_DRAGON];
 
-    if (item->brands[ELEM_ACID])
-        armour_swap_brand_acid = true;
-    if (item->brands[ELEM_ELEC])
-        armour_swap_brand_elec = true;
-    if (item->brands[ELEM_FIRE])
-        armour_swap_brand_fire = true;
-    if (item->brands[ELEM_COLD])
-        armour_swap_brand_cold = true;
-    if (item->brands[ELEM_POIS])
-        armour_swap_brand_pois = true;
+    if (item->brands[BORG_BRAND_ACID2])
+        armour_swap_brand_acid2 = true;
+    if (item->brands[BORG_BRAND_ELEC2])
+        armour_swap_brand_elec2 = true;
+    if (item->brands[BORG_BRAND_FIRE2])
+        armour_swap_brand_fire2 = true;
+    if (item->brands[BORG_BRAND_COLD2])
+        armour_swap_brand_cold2 = true;
+    if (item->brands[BORG_BRAND_POIS2])
+        armour_swap_brand_pois2 = true;
+    if (item->brands[BORG_BRAND_ACID3])
+        armour_swap_brand_acid3 = true;
+    if (item->brands[BORG_BRAND_ELEC3])
+        armour_swap_brand_elec3 = true;
+    if (item->brands[BORG_BRAND_FIRE3])
+        armour_swap_brand_fire3 = true;
+    if (item->brands[BORG_BRAND_COLD3])
+        armour_swap_brand_cold3 = true;
+    if (item->brands[BORG_BRAND_POIS3])
+        armour_swap_brand_pois3 = true;
 
     /* Affect infravision */
     armour_swap_see_infra += item->modifiers[OBJ_MOD_INFRA];

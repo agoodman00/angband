@@ -530,7 +530,7 @@ static int borg_perma_aux_venom(void)
         fail_allowed = 15;
 
     /* already smiting */
-    if (borg.temp.venom || borg.trait[BI_WB_POIS])
+    if (borg.temp.venom || borg.trait[BI_WB_POIS2] || borg.trait[BI_WB_POIS3])
         return 0;
 
     /* Cant when Blind */

@@ -954,11 +954,16 @@ const char *prefix_pref[] = {
     "wep kill demon",
     "wep kill dragon",
     "wep impact",
-    "wep brand acid", /* WB = Weapon Branded With */
-    "wep brand elec",
-    "wep brand fire",
-    "wep brand cold",
-    "wep brand poison",
+    "wep brand acid2", /* WB = Weapon Branded With */
+    "wep brand elec2",
+    "wep brand fire2",
+    "wep brand cold2",
+    "wep brand poison2",
+    "wep brand acid3",
+    "wep brand elec3",
+    "wep brand fire3",
+    "wep brand cold3",
+    "wep brand poison3",
 
     /* amounts */
     "amt phase",
@@ -1338,7 +1343,7 @@ static void borg_notice_equipment(void)
         borg.trait[BI_IELEC] = true;
 
     /* Resistance flags */
-    if (rb_ptr->el_info[ELEM_FIRE].res_level > 0)
+    if (rb_ptr->el_info[ELEM_ACID].res_level > 0)
         borg.trait[BI_RACID] = true;
     if (rb_ptr->el_info[ELEM_ELEC].res_level > 0)
         borg.trait[BI_RELEC] = true;
@@ -1475,16 +1480,26 @@ static void borg_notice_equipment(void)
             borg.trait[BI_WK_DRAGON] = true;
 
         /* various brands */
-        if (item->brands[ELEM_ACID])
-            borg.trait[BI_WB_ACID] = true;
-        if (item->brands[ELEM_ELEC])
-            borg.trait[BI_WB_ELEC] = true;
-        if (item->brands[ELEM_FIRE])
-            borg.trait[BI_WB_FIRE] = true;
-        if (item->brands[ELEM_COLD])
-            borg.trait[BI_WB_COLD] = true;
-        if (item->brands[ELEM_POIS])
-            borg.trait[BI_WB_POIS] = true;
+        if (item->brands[BORG_BRAND_ACID2])
+            borg.trait[BI_WB_ACID2] = true;
+        if (item->brands[BORG_BRAND_ELEC2])
+            borg.trait[BI_WB_ELEC2] = true;
+        if (item->brands[BORG_BRAND_FIRE2])
+            borg.trait[BI_WB_FIRE2] = true;
+        if (item->brands[BORG_BRAND_COLD2])
+            borg.trait[BI_WB_COLD2] = true;
+        if (item->brands[BORG_BRAND_POIS2])
+            borg.trait[BI_WB_POIS2] = true;
+        if (item->brands[BORG_BRAND_ACID3])
+            borg.trait[BI_WB_ACID3] = true;
+        if (item->brands[BORG_BRAND_ELEC3])
+            borg.trait[BI_WB_ELEC3] = true;
+        if (item->brands[BORG_BRAND_FIRE3])
+            borg.trait[BI_WB_FIRE3] = true;
+        if (item->brands[BORG_BRAND_COLD3])
+            borg.trait[BI_WB_COLD3] = true;
+        if (item->brands[BORG_BRAND_POIS3])
+            borg.trait[BI_WB_POIS3] = true;
         if (of_has(item->flags, OF_IMPACT))
             borg.trait[BI_W_IMPACT] = true;
 
@@ -1544,8 +1559,6 @@ static void borg_notice_equipment(void)
             if ((item->modifiers[OBJ_MOD_LIGHT] > 0)
                 && (borg.trait[BI_CLASS] == CLASS_NECROMANCER))
                 borg.trait[BI_LIGHT]--;
-
-            borg.trait[BI_LIGHT] += item->modifiers[OBJ_MOD_LIGHT];
         }
 
         /* Boost mod moves */

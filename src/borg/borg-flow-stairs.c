@@ -315,8 +315,8 @@ bool borg_prep_leave_level_spells(void)
     }
 
     /* Cast Venom just before returning to dungeon */
-    if (!borg.temp.venom && !borg.trait[BI_WB_POIS]
-        && borg_spell_fail(VENOM, 15)) {
+    if (!borg.temp.venom && !borg.trait[BI_WB_POIS2]
+        && !borg.trait[BI_WB_POIS3] && borg_spell_fail(VENOM, 15)) {
         borg_note("# Casting Venom before leaving level.");
         borg.no_rest_prep = 18000;
         return true;
